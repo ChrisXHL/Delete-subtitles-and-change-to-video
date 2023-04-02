@@ -1,0 +1,36 @@
+import os
+import pysrt
+from moviepy.editor import VideoFileClip, concatenate_videoclips
+from datetime import timedelta
+
+def time_to_seconds(time_obj):
+    td = timedelta(hours=time_obj.hour, minutes=time_obj.minute, seconds=time_obj.second, microseconds=time_obj.microsecond)
+    return td.total_seconds()
+
+def clip_video_by_subtitles(video_path, subtitle_path, output_path):
+    # Load subtitles
+    subs = pysrt.open(subtitle_path)
+
+    # Load video
+    video = VideoFileClip(video_path)
+
+    # Create an empty list to store video clips with subtitles
+    video_clips = []
+
+    # Iterate over subtitles and create corresponding video clips
+    for sub in subs:
+        start_time = time_to_seconds(sub.start.to_time())
+        end_time = time_to_seconds(sub.end.to_time())
+        clip = video.subclip(start_time, end_time)
+        video_clips.append(clip)
+
+    # Concatenate video clips and write the result to a file
+    final_clip = concatenate_videoclips(video_clips)
+    final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
+
+if __name__ == '__main__':
+    video_path = '/Users/shuaige/Desktop/python/删除字幕当剪辑/测试.mp4'
+    subtitle_path = '/Users/shuaige/Desktop/python/删除字幕当剪辑/测试.srt'
+    output_path = '/Users/shuaige/Desktop/python/删除字幕当剪辑/测试2.mp4'
+
+    clip_video_by_subtitles(video_path, subtitle_path, output_path)
